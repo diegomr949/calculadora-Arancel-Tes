@@ -1,0 +1,127 @@
+html {
+  font-family: sans-serif;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+body {
+  background-color: #337ab7;
+  color: white;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden; /* Oculta el scroll en el body para evitar que el logo se mueva fuera de vista */
+}
+
+.container {
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 15px;
+  width: 100%;
+  max-width: 700px;
+  box-sizing: border-box; /* Incluye padding en el ancho total */
+  overflow-y: auto; /* Permite el desplazamiento vertical del contenido */
+  max-height: 90vh; /* Limita la altura máxima del contenedor para que no sobrepase la vista del viewport */
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px; /* Mantiene un margen adecuado debajo del logo */
+  max-height: 100px; /* Establece una altura máxima para el logo */
+}
+
+.logo img {
+  max-width: 100%;
+  height: auto;
+}
+
+input[type="text"], input[type="submit"], button, select {
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: none;
+  font-size: 18px;
+  background-color: #ffffff;
+  color: #337ab7;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+input[type="text"]:focus, select:focus, button:focus {
+  outline: none;
+}
+
+input[type="submit"]:hover, button:hover, select:hover {
+  background-color: #dddddd;
+}
+
+h1 {
+  margin: 20px 0;
+  font-size: 24px;
+}
+
+label, p {
+  margin: 15px 0;
+  font-size: 18px;
+  text-align: center; /* Alinea el texto al centro */
+}
+
+ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  text-align: left; /* Alinea el texto de la lista a la izquierda */
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+  }
+  
+  .logo {
+    max-height: 80px; /* Reduce la altura del logo en pantallas más pequeñas */
+  }
+  
+  input[type="text"], input[type="submit"], button, select {
+    padding: 12px;
+    margin: 10px 0;
+    font-size: 16px;
+  }
+  
+  h1 {
+    font-size: 20px;
+  }
+  
+  label, p {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 10px;
+  }
+  
+  .logo {
+    max-height: 60px; /* Reduce aún más la altura del logo en pantallas muy pequeñas */
+  }
+  
+  input[type="text"], input[type="submit"], button, select {
+    padding: 10px;
+    margin: 8px 0;
+    font-size: 14px;
+  }
+  
+  h1 {
+    font-size: 18px;
+  }
+  
+  label, p {
+    font-size: 14px;
+  }
+}
