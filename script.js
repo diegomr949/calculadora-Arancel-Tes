@@ -316,27 +316,43 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   function renderizarResultadoSimple() {
     document.getElementById('simpleResult').innerHTML = `
-      <p><b>Trámite:</b> ${state.tipoTramite}</p>
-      <p>El valor del trámite es $${formatNumber(CONFIG.aranceles.tramiteSimple)}</p>
+      <div class="resultado-simple-card">
+        <p class="resultado-simple-card__tramite">Trámite seleccionado</p>
+        <p class="resultado-simple-card__name">${state.tipoTramite}</p>
+        <p class="resultado-simple-card__price-label">Arancel a pagar</p>
+        <p class="resultado-simple-card__price">$${formatNumber(CONFIG.aranceles.tramiteSimple)}</p>
+      </div>
     `;
   }
 
   function renderizarResultadoCalculadora() {
     const { importeBase, arancelFinal } = state.valoresCalculados;
-    const listaItems = CONFIG.tiposConCalculadora.map(t => `<li>${t}</li>`).join('');
+    const badgeItems = CONFIG.tiposConCalculadora.map(t => `<li>${t}</li>`).join('');
+    const priorityTag = state.esPrioritario
+      ? '<span style="font-size:11px;background:rgba(255,255,255,0.18);padding:3px 10px;border-radius:999px;margin-left:8px;vertical-align:middle;">⚡ Prioritario</span>'
+      : '';
 
     document.getElementById('resultado').innerHTML = `
-      <p><b>Importe Base de Búsqueda:</b> $${formatNumber(importeBase.toFixed(2))}</p>
-      <p><b>Arancel a pagar:</b> $${formatNumber(arancelFinal)}</p>
-      <p>El arancel incluye dos ejemplares. Para copias adicionales el 50% del arancel vigente.</p>
-      <p style="text-align:left;">El arancel por escala corresponde para:</p>
-      <ul>${listaItems}</ul>
-      <p>Te esperamos en Mi Cuenta para gestionar el trámite.</p>
-      <p>
-        <a href="https://micuenta.cpcemza.org.ar/" target="_blank" rel="noopener noreferrer">
-          <button type="button">Ingresar a Mi Cuenta</button>
-        </a>
-      </p>
+      <div class="resultado-card">
+        <span class="resultado-card__label">Arancel a pagar${priorityTag}</span>
+        <span class="resultado-card__value">$${formatNumber(arancelFinal)}</span>
+        <div class="resultado-divider"></div>
+        <div class="resultado-row">
+          <span class="resultado-row__label">Importe Base de Búsqueda</span>
+          <span class="resultado-row__val">$${formatNumber(importeBase.toFixed(2))}</span>
+        </div>
+      </div>
+      <div class="resultado-note">
+        <strong>El arancel incluye dos ejemplares.</strong> Para copias adicionales: 50% del arancel vigente.
+      </div>
+      <div class="resultado-tramites">
+        <strong>Este arancel aplica para:</strong>
+        <ul class="resultado-tramites__list">${badgeItems}</ul>
+      </div>
+      <a href="https://micuenta.cpcemza.org.ar/" target="_blank" rel="noopener noreferrer" class="btn-micuenta">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2a7 7 0 1 0 0 14A7 7 0 0 0 9 2Z" stroke="currentColor" stroke-width="1.5"/><path d="M9 6v4l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Gestionar en Mi Cuenta
+      </a>
     `;
   }
 

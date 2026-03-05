@@ -3,154 +3,362 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculadora de Arancel</title>
+  <title>Simulador de Aranceles — CPCE Mendoza</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="favicon_io/favicon-16x16.png" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <div class="logo">
-      <img src="https://cpcemza.org.ar/img/logo.png" alt="Logo CPCE Mendoza">
-    </div>
-    <h1>Simulador aranceles de legalización</h1>
 
-    <!-- Pantalla Inicial -->
-    <div id="initialScreen">
-      <form id="initialForm">
-        <label for="tipoTramite">Tipo de Trámite:</label>
-        <select id="tipoTramite" name="tipoTramite" required>
-          <option value="" disabled selected>Seleccioná un trámite…</option>
-          <option value="Estados Contables Soc. Comerciales">Estados Contables Soc. Comerciales</option>
-          <option value="Estados Contables Entidades Sin F/ Lucros">Estados Contables Entidades Sin F/ Lucros</option>
-          <option value="Estados Contables De Cooperativa">Estados Contables De Cooperativa</option>
-          <option value="Manifestación De Bienes">Manifestación De Bienes</option>
-          <option value="Certificación De Ingresos">Certificación De Ingresos</option>
-          <option value="Formulario Afip">Formulario Afip</option>
-          <option value="Flujo De Fondos">Flujo De Fondos</option>
-          <option value="Estados Contables Intermedios">Estados Contables Intermedios</option>
-          <option value="Reintegro De Iva">Reintegro De Iva</option>
-          <option value="Otros Trabajos">Otros Trabajos</option>
-          <option value="Formulario 780">Formulario 780</option>
-          <option value="Certificado De Profesionalidad">Certificado De Profesionalidad</option>
-          <option value="Precios De Transferencia Y Derivados">Precios De Transferencia Y Derivados</option>
-          <option value="Ley Fomento Pyme">Ley Fomento Pyme</option>
-          <option value="Inventario Entidades Sin Fines De Lucro">Inventario Entidades Sin Fines De Lucro</option>
-          <option value="Compilación">Compilación</option>
-          <option value="Certificación Licitud Y Origen De Fondos">Certificación Licitud Y Origen De Fondos</option>
-          <option value="Estados Contables Especiales">Estados Contables Especiales</option>
-          <option value="Rectificativo">Rectificativo</option>
-        </select>
-        <input type="submit" value="Continuar">
-      </form>
-    </div>
-
-    <!-- Pantalla de Check de Prioridad -->
-    <div id="checkScreen" style="display:none;">
-      <h2>Seleccione si el trámite es prioritario</h2>
-      <form id="checkForm">
-        <label>
-          <input type="checkbox" id="prioridadCheck" name="prioridadCheck">
-          Trámite Prioritario
-        </label><br>
-        <input type="submit" value="Continuar">
-      </form>
-    </div>
-
-    <!-- FIX: id del div y del form eran iguales; ahora el div es checkDiscountScreen
-         y el form tiene su propio id discountForm -->
-    <div id="checkDiscountScreen" style="display:none;">
-      <h2>Seleccione si el trámite tiene descuento luego de consultar la Resolución 848/87</h2>
-      <form id="discountForm">
-        <label>
-          <input type="radio" name="discountCheck" value="50"> 50% de descuento
-        </label>
-        <label>
-          <input type="radio" name="discountCheck" value="70"> 70% de descuento
-        </label>
-        <label>
-          <input type="radio" name="discountCheck" value="0" checked> Sin descuento
-        </label>
-        <button type="submit">Continuar</button>
-      </form>
-    </div>
-
-    <!-- Pantalla de Prioridad -->
-    <div id="prioridadScreen" style="display:none;">
-      <h2>Trámite con Prioridad</h2>
-      <p>El trámite con prioridad es un servicio en el cual el Matriculado puede optar para que el comitente obtenga su actuación profesional con mayor celeridad, el costo del arancel será mayor al trámite normal, y dependerá de las siguientes condiciones para que el trámite se legalice dentro de las 24hs:</p>
-      <ul>
-        <li>Colocar destinatario de la lista pre-validada por el CPCE.</li>
-        <li>Cargar correctamente, tal como figura en el archivo del trámite, los importes (TOTAL ACTIVO; TOTAL PASIVO; INGRESOS OPERATIVOS; FECHA DE BALANCE;...)</li>
-        <li>Forma de Pago Electrónico (plataforma virtual), "NO TRANSFERENCIA BANCARIA".</li>
-        <li>Documentos del trámite digitalizados legibles, completos y en formato PDF.</li>
-        <li>Firmas del Comitente y Matriculado correctas, sellos con el detalle y leyendas correspondientes.</li>
-        <li>Cumplimiento de la RT53 y normas vigentes.</li>
-        <li>Seguir recomendaciones de Secretaria Técnica, como check list, sugerencias y modelos pre-validados.</li>
-        <li>Las observaciones pueden influir en la celeridad del trámite.</li>
-        <li>Los trámites serán tratados operativamente por el personal del consejo dentro de los horas y días hábiles.</li>
-      </ul>
-      <p>Cualquier consulta, comuníquese con el Centro de Atención al Matriculado (CAM):</p>
-      <ul>
-        <li><a href="https://wa.link/xd7xt8" target="_blank">Sede Central</a></li>
-        <li><a href="https://wa.link/jtg9bw" target="_blank">Delegación Maipú - Luján</a></li>
-        <li><a href="https://wa.link/75higy" target="_blank">Delegación Zona Este</a></li>
-        <li><a href="https://wa.link/ppzior" target="_blank">Delegación San Rafael</a></li>
-        <li><a href="https://wa.link/e2836a" target="_blank">Delegación General Alvear</a></li>
-        <li><a href="https://wa.link/ahtvv6" target="_blank">Delegación Valle de Uco</a></li>
-      </ul>
-      <p>Horarios de atención: lunes a viernes de 8 a 17hs</p>
-      <button id="continuarConPrioridad" type="button">Continuar</button>
-    </div>
-
-    <!-- FIX: botones de acción FUERA del form para evitar que disparen submit -->
-    <div id="calculatorScreen" style="display:none;">
-      <form id="arancelForm">
-        <label for="activo">Activo:</label>
-        <input type="text" id="activo" name="activo" placeholder="0,00" inputmode="numeric"><br>
-        <label for="pasivo">Pasivo:</label>
-        <input type="text" id="pasivo" name="pasivo" placeholder="0,00" inputmode="numeric"><br>
-        <label for="ingresos">Ingresos:</label>
-        <input type="text" id="ingresos" name="ingresos" placeholder="0,00" inputmode="numeric"><br>
-        <input type="submit" value="Calcular">
-      </form>
-      <div id="resultado"></div>
-      <!-- Botones fuera del form para que no interfieran con submit -->
-      <div id="calculatorActions" style="display:none;">
-        <button type="button" id="enviarMail">Enviar por Mail</button>
-        <button type="button" id="otraConsulta">Otra Consulta</button>
-      </div>
-    </div>
-
-    <!-- Pantalla de Resultado Simple -->
-    <div id="simpleResultScreen" style="display:none;">
-      <div id="simpleResult"></div>
-      <button type="button" id="enviarMailSimple">Enviar por Mail</button>
-      <button type="button" id="otraConsultaSimple">Otra Consulta</button>
-    </div>
+  <!-- Fondo decorativo -->
+  <div class="bg-layer" aria-hidden="true">
+    <div class="bg-circle bg-circle--1"></div>
+    <div class="bg-circle bg-circle--2"></div>
+    <div class="bg-grid"></div>
   </div>
 
-  <!-- Modal de email (oculto, gestionado por JS) -->
-  <div id="emailModalOverlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle">
+  <div class="shell">
+
+    <!-- Header institucional -->
+    <header class="app-header">
+      <a href="https://cpcemza.org.ar" target="_blank" rel="noopener noreferrer" class="logo-link">
+        <img src="https://cpcemza.org.ar/img/logo.png" alt="CPCE Mendoza" class="logo-img">
+      </a>
+      <div class="header-divider" aria-hidden="true"></div>
+      <div class="header-title">
+        <span class="header-title__sup">Consejo Profesional de Ciencias Económicas</span>
+        <span class="header-title__main">Simulador de Aranceles</span>
+      </div>
+    </header>
+
+    <!-- Tarjeta principal -->
+    <main class="card" id="appCard">
+
+      <!-- Indicador de progreso -->
+      <div class="progress-bar" id="progressBar" aria-hidden="true">
+        <div class="progress-bar__fill" id="progressFill"></div>
+      </div>
+
+      <!-- ── PANTALLA 1: Tipo de trámite ── -->
+      <section class="screen" id="initialScreen">
+        <div class="screen__header">
+          <div class="step-badge">Paso 1 de 3</div>
+          <h2 class="screen__title">¿Qué trámite vas a realizar?</h2>
+          <p class="screen__desc">Seleccioná el tipo de trámite para calcular el arancel correspondiente.</p>
+        </div>
+        <form id="initialForm" class="form">
+          <div class="field">
+            <label class="field__label" for="tipoTramite">Tipo de Trámite</label>
+            <div class="select-wrapper">
+              <select id="tipoTramite" name="tipoTramite" class="field__select" required>
+                <option value="" disabled selected>Seleccioná una opción…</option>
+                <optgroup label="Con calculadora de escala">
+                  <option value="Estados Contables Soc. Comerciales">Estados Contables Soc. Comerciales</option>
+                  <option value="Estados Contables Entidades Sin F/ Lucros">Estados Contables Entidades Sin F/ Lucros</option>
+                  <option value="Estados Contables De Cooperativa">Estados Contables De Cooperativa</option>
+                  <option value="Estados Contables Intermedios">Estados Contables Intermedios</option>
+                  <option value="Compilación">Compilación</option>
+                  <option value="Estados Contables Especiales">Estados Contables Especiales</option>
+                  <option value="Rectificativo">Rectificativo</option>
+                </optgroup>
+                <optgroup label="Arancel fijo">
+                  <option value="Manifestación De Bienes">Manifestación De Bienes</option>
+                  <option value="Certificación De Ingresos">Certificación De Ingresos</option>
+                  <option value="Formulario Afip">Formulario Afip</option>
+                  <option value="Flujo De Fondos">Flujo De Fondos</option>
+                  <option value="Reintegro De Iva">Reintegro De Iva</option>
+                  <option value="Otros Trabajos">Otros Trabajos</option>
+                  <option value="Formulario 780">Formulario 780</option>
+                  <option value="Certificado De Profesionalidad">Certificado De Profesionalidad</option>
+                  <option value="Precios De Transferencia Y Derivados">Precios De Transferencia Y Derivados</option>
+                  <option value="Ley Fomento Pyme">Ley Fomento Pyme</option>
+                  <option value="Inventario Entidades Sin Fines De Lucro">Inventario Entidades Sin Fines De Lucro</option>
+                  <option value="Certificación Licitud Y Origen De Fondos">Certificación Licitud Y Origen De Fondos</option>
+                </optgroup>
+              </select>
+              <span class="select-icon" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+            </div>
+          </div>
+          <button type="submit" class="btn btn--primary btn--full">
+            Continuar
+            <svg class="btn__icon" width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M7 4l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </form>
+      </section>
+
+      <!-- ── PANTALLA 2: Prioridad ── -->
+      <section class="screen" id="checkScreen" style="display:none;">
+        <div class="screen__header">
+          <div class="step-badge">Paso 2 de 3</div>
+          <h2 class="screen__title">¿El trámite es prioritario?</h2>
+          <p class="screen__desc">Los trámites prioritarios tienen procesamiento en 24 hs con un arancel diferenciado.</p>
+        </div>
+        <form id="checkForm" class="form">
+          <label class="toggle-card" for="prioridadCheck">
+            <div class="toggle-card__content">
+              <span class="toggle-card__icon" aria-hidden="true">⚡</span>
+              <div>
+                <span class="toggle-card__title">Trámite Prioritario</span>
+                <span class="toggle-card__desc">Procesamiento dentro de las 24 horas hábiles</span>
+              </div>
+            </div>
+            <div class="toggle-card__switch">
+              <input type="checkbox" id="prioridadCheck" name="prioridadCheck" class="toggle-input">
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </div>
+          </label>
+          <div class="btn-group">
+            <button type="button" class="btn btn--ghost" onclick="navegarAtras()">
+              <svg class="btn__icon btn__icon--left" width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Atrás
+            </button>
+            <button type="submit" class="btn btn--primary">
+              Continuar
+              <svg class="btn__icon" width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M7 4l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ── PANTALLA 3: Descuento (Sin F/L y Cooperativa) ── -->
+      <div id="checkDiscountScreen" style="display:none;">
+        <div class="screen__header">
+          <div class="step-badge">Paso 2 de 3</div>
+          <h2 class="screen__title">¿Aplica descuento?</h2>
+          <p class="screen__desc">Consultá la <strong>Resolución 848/87</strong> para verificar si corresponde descuento.</p>
+        </div>
+        <form id="discountForm" class="form">
+          <div class="radio-group">
+            <label class="radio-card">
+              <input type="radio" name="discountCheck" value="0" checked class="radio-input">
+              <span class="radio-card__body">
+                <span class="radio-card__title">Sin descuento</span>
+                <span class="radio-card__desc">Arancel según escala completa</span>
+              </span>
+              <span class="radio-card__check" aria-hidden="true"></span>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="discountCheck" value="50" class="radio-input">
+              <span class="radio-card__body">
+                <span class="radio-card__title">50% de descuento</span>
+                <span class="radio-card__desc">Según Res. 848/87</span>
+              </span>
+              <span class="radio-card__check" aria-hidden="true"></span>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="discountCheck" value="70" class="radio-input">
+              <span class="radio-card__body">
+                <span class="radio-card__title">70% de descuento</span>
+                <span class="radio-card__desc">Según Res. 848/87</span>
+              </span>
+              <span class="radio-card__check" aria-hidden="true"></span>
+            </label>
+          </div>
+          <div class="btn-group">
+            <button type="button" class="btn btn--ghost" onclick="navegarAtras()">
+              <svg class="btn__icon btn__icon--left" width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Atrás
+            </button>
+            <button type="submit" class="btn btn--primary">
+              Continuar
+              <svg class="btn__icon" width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M7 4l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ── PANTALLA 4: Info Prioridad ── -->
+      <section class="screen" id="prioridadScreen" style="display:none;">
+        <div class="screen__header">
+          <div class="step-badge step-badge--warning">⚡ Trámite Prioritario</div>
+          <h2 class="screen__title">Requisitos para aprobación en 24 hs</h2>
+        </div>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-item__icon" aria-hidden="true">👤</span>
+            <span>Destinatario de la lista pre-validada por el CPCE.</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__icon" aria-hidden="true">🔢</span>
+            <span>Importes cargados correctamente: Activo, Pasivo, Ingresos Operativos, Fecha de Balance.</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__icon" aria-hidden="true">💳</span>
+            <span>Forma de pago electrónico — <strong>no transferencia bancaria</strong>.</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__icon" aria-hidden="true">📄</span>
+            <span>Documentos digitalizados: legibles, completos y en PDF.</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__icon" aria-hidden="true">✍️</span>
+            <span>Firmas del comitente y matriculado correctas, con sellos y leyendas correspondientes.</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item__icon" aria-hidden="true">📋</span>
+            <span>Cumplimiento de RT53 y normas vigentes.</span>
+          </div>
+        </div>
+        <div class="cam-links">
+          <p class="cam-links__title">Consultas — Centro de Atención al Matriculado (CAM)</p>
+          <div class="cam-links__grid">
+            <a href="https://wa.link/xd7xt8" target="_blank" class="cam-link">📍 Sede Central</a>
+            <a href="https://wa.link/jtg9bw" target="_blank" class="cam-link">📍 Maipú - Luján</a>
+            <a href="https://wa.link/75higy" target="_blank" class="cam-link">📍 Zona Este</a>
+            <a href="https://wa.link/ppzior" target="_blank" class="cam-link">📍 San Rafael</a>
+            <a href="https://wa.link/e2836a" target="_blank" class="cam-link">📍 Gral. Alvear</a>
+            <a href="https://wa.link/ahtvv6" target="_blank" class="cam-link">📍 Valle de Uco</a>
+          </div>
+          <p class="cam-links__hours">Lunes a viernes · 8 a 17 hs</p>
+        </div>
+        <button id="continuarConPrioridad" type="button" class="btn btn--primary btn--full" style="margin-top: 8px;">
+          Continuar con el cálculo
+          <svg class="btn__icon" width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M7 4l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </section>
+
+      <!-- ── PANTALLA 5: Calculadora ── -->
+      <section class="screen" id="calculatorScreen" style="display:none;">
+        <div class="screen__header">
+          <div class="step-badge">Paso 3 de 3</div>
+          <h2 class="screen__title">Ingresá los importes</h2>
+          <p class="screen__desc">Valores del estado contable en pesos argentinos.</p>
+        </div>
+        <form id="arancelForm" class="form">
+          <div class="inputs-grid">
+            <div class="field">
+              <label class="field__label" for="activo">
+                <span class="field__label-icon" aria-hidden="true">＋</span> Total Activo
+              </label>
+              <div class="input-wrapper">
+                <span class="input-prefix">$</span>
+                <input type="text" id="activo" name="activo" placeholder="0" inputmode="numeric" class="field__input field__input--prefixed">
+              </div>
+            </div>
+            <div class="field">
+              <label class="field__label" for="pasivo">
+                <span class="field__label-icon" aria-hidden="true">－</span> Total Pasivo
+              </label>
+              <div class="input-wrapper">
+                <span class="input-prefix">$</span>
+                <input type="text" id="pasivo" name="pasivo" placeholder="0" inputmode="numeric" class="field__input field__input--prefixed">
+              </div>
+            </div>
+            <div class="field field--full">
+              <label class="field__label" for="ingresos">
+                <span class="field__label-icon" aria-hidden="true">↗</span> Ingresos Operativos
+              </label>
+              <div class="input-wrapper">
+                <span class="input-prefix">$</span>
+                <input type="text" id="ingresos" name="ingresos" placeholder="0" inputmode="numeric" class="field__input field__input--prefixed">
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn--primary btn--full">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style="margin-right:6px"><rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M5 9h8M9 5v8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            Calcular Arancel
+          </button>
+        </form>
+
+        <!-- Resultado -->
+        <div id="resultado" class="resultado"></div>
+
+        <!-- Acciones post-cálculo -->
+        <div id="calculatorActions" class="action-row" style="display:none;">
+          <button type="button" id="enviarMail" class="btn btn--secondary">
+            <svg width="17" height="17" viewBox="0 0 17 17" fill="none" style="margin-right:5px"><rect x="1.5" y="3.5" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 5.5l7 5 7-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Enviar por mail
+          </button>
+          <button type="button" id="otraConsulta" class="btn btn--ghost">
+            <svg width="17" height="17" viewBox="0 0 17 17" fill="none" style="margin-right:5px"><path d="M3 9a6 6 0 1 0 .5-2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 4.5V9H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Nueva consulta
+          </button>
+        </div>
+      </section>
+
+      <!-- ── PANTALLA 6: Resultado simple ── -->
+      <section class="screen" id="simpleResultScreen" style="display:none;">
+        <div class="screen__header">
+          <div class="step-badge step-badge--success">✓ Resultado</div>
+          <h2 class="screen__title">Arancel del trámite</h2>
+        </div>
+        <div id="simpleResult" class="resultado"></div>
+        <div class="action-row" style="margin-top: 16px;">
+          <button type="button" id="enviarMailSimple" class="btn btn--secondary">
+            <svg width="17" height="17" viewBox="0 0 17 17" fill="none" style="margin-right:5px"><rect x="1.5" y="3.5" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 5.5l7 5 7-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Enviar por mail
+          </button>
+          <button type="button" id="otraConsultaSimple" class="btn btn--ghost">
+            <svg width="17" height="17" viewBox="0 0 17 17" fill="none" style="margin-right:5px"><path d="M3 9a6 6 0 1 0 .5-2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 4.5V9H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Nueva consulta
+          </button>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="app-footer">
+      <span>© 2026 CPCE Mendoza</span>
+      <span class="footer-sep" aria-hidden="true">·</span>
+      <a href="https://cpcemza.org.ar" target="_blank" rel="noopener noreferrer">cpcemza.org.ar</a>
+      <span class="footer-sep" aria-hidden="true">·</span>
+      <span>Av. España 560, Mendoza</span>
+    </footer>
+
+  </div><!-- /shell -->
+
+  <!-- ── MODAL DE EMAIL ── -->
+  <div id="emailModalOverlay" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle">
     <div id="emailModal">
-      <h3 id="emailModalTitle">Enviar resultado por mail</h3>
-      <label for="emailInput">Dirección de email:</label>
-      <input type="email" id="emailInput" placeholder="destinatario@ejemplo.com" autocomplete="email">
-      <p id="emailError" class="field-error" aria-live="polite"></p>
+      <div class="modal-header">
+        <div class="modal-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="4" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M2 7l9 6 9-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <h3 id="emailModalTitle">Enviar resultado</h3>
+          <span class="modal-subtitle">Te enviaremos el resumen del cálculo a tu casilla.</span>
+        </div>
+      </div>
+      <div class="modal-body">
+        <label class="field__label" for="emailInput">Dirección de email</label>
+        <div class="input-wrapper">
+          <span class="input-prefix input-prefix--icon" aria-hidden="true">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1" y="2.5" width="13" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M1 5l6.5 4L14 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </span>
+          <input type="email" id="emailInput" placeholder="tu@email.com" autocomplete="email" class="field__input field__input--prefixed">
+        </div>
+        <span id="emailError" class="field-error" aria-live="polite"></span>
+      </div>
       <div class="modal-actions">
-        <button id="emailModalCancel" type="button">Cancelar</button>
-        <button id="emailModalConfirm" type="button">Enviar</button>
+        <button id="emailModalCancel" type="button" class="btn btn--ghost">Cancelar</button>
+        <button id="emailModalConfirm" type="button" class="btn btn--primary">
+          Enviar
+          <svg class="btn__icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8h12M10 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
     </div>
   </div>
 
   <script src="script.js"></script>
-  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-E7FC7H0NK7"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-E7FC7H0NK7');
+
+    // Función global para el botón Atrás inline
+    function navegarAtras() {
+      document.getElementById('initialScreen').style.display = 'block';
+      ['checkScreen','checkDiscountScreen','prioridadScreen','calculatorScreen','simpleResultScreen'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+    }
   </script>
 </body>
 </html>
