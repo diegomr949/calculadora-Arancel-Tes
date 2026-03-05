@@ -10,15 +10,16 @@
 <body>
   <div class="container">
     <div class="logo">
-      <img src="https://cpcemza.org.ar/img/logo.png" alt="Logo">
+      <img src="https://cpcemza.org.ar/img/logo.png" alt="Logo CPCE Mendoza">
     </div>
     <h1>Simulador aranceles de legalización</h1>
-    
+
     <!-- Pantalla Inicial -->
     <div id="initialScreen">
       <form id="initialForm">
         <label for="tipoTramite">Tipo de Trámite:</label>
         <select id="tipoTramite" name="tipoTramite" required>
+          <option value="" disabled selected>Seleccioná un trámite…</option>
           <option value="Estados Contables Soc. Comerciales">Estados Contables Soc. Comerciales</option>
           <option value="Estados Contables Entidades Sin F/ Lucros">Estados Contables Entidades Sin F/ Lucros</option>
           <option value="Estados Contables De Cooperativa">Estados Contables De Cooperativa</option>
@@ -44,7 +45,7 @@
     </div>
 
     <!-- Pantalla de Check de Prioridad -->
-    <div id="checkScreen" style="display: none;">
+    <div id="checkScreen" style="display:none;">
       <h2>Seleccione si el trámite es prioritario</h2>
       <form id="checkForm">
         <label>
@@ -55,25 +56,26 @@
       </form>
     </div>
 
-    <!-- Pantalla de Check de descuento -->
-    <div id="checkScreenDiscount" style="display: none;">
+    <!-- FIX: id del div y del form eran iguales; ahora el div es checkDiscountScreen
+         y el form tiene su propio id discountForm -->
+    <div id="checkDiscountScreen" style="display:none;">
       <h2>Seleccione si el trámite tiene descuento luego de consultar la Resolución 848/87</h2>
-      <form id="checkScreenDiscount">
+      <form id="discountForm">
         <label>
-            <input type="radio" name="discountCheck" id="discountCheck50" value="50"> 50% de descuento
+          <input type="radio" name="discountCheck" value="50"> 50% de descuento
         </label>
         <label>
-            <input type="radio" name="discountCheck" id="discountCheck70" value="70"> 70% de descuento
+          <input type="radio" name="discountCheck" value="70"> 70% de descuento
         </label>
         <label>
-            <input type="radio" name="discountCheck" id="discountCheckNone" value="0" checked> Sin descuento
+          <input type="radio" name="discountCheck" value="0" checked> Sin descuento
         </label>
         <button type="submit">Continuar</button>
-    </form>
-  </div>
+      </form>
+    </div>
 
     <!-- Pantalla de Prioridad -->
-    <div id="prioridadScreen" style="display: none;">
+    <div id="prioridadScreen" style="display:none;">
       <h2>Trámite con Prioridad</h2>
       <p>El trámite con prioridad es un servicio en el cual el Matriculado puede optar para que el comitente obtenga su actuación profesional con mayor celeridad, el costo del arancel será mayor al trámite normal, y dependerá de las siguientes condiciones para que el trámite se legalice dentro de las 24hs:</p>
       <ul>
@@ -97,41 +99,58 @@
         <li><a href="https://wa.link/ahtvv6" target="_blank">Delegación Valle de Uco</a></li>
       </ul>
       <p>Horarios de atención: lunes a viernes de 8 a 17hs</p>
-      <button id="continuarConPrioridad">Continuar</button>
+      <button id="continuarConPrioridad" type="button">Continuar</button>
     </div>
 
-    <!-- Pantalla de Calculadora -->
-    <div id="calculatorScreen" style="display: none;">
+    <!-- FIX: botones de acción FUERA del form para evitar que disparen submit -->
+    <div id="calculatorScreen" style="display:none;">
       <form id="arancelForm">
         <label for="activo">Activo:</label>
-        <input type="text" id="activo" name="activo" placeholder="0,00" required inputmode="numeric"><br>
+        <input type="text" id="activo" name="activo" placeholder="0,00" inputmode="numeric"><br>
         <label for="pasivo">Pasivo:</label>
-        <input type="text" id="pasivo" name="pasivo" placeholder="0,00" required inputmode="numeric"><br>
+        <input type="text" id="pasivo" name="pasivo" placeholder="0,00" inputmode="numeric"><br>
         <label for="ingresos">Ingresos:</label>
-        <input type="text" id="ingresos" name="ingresos" placeholder="0,00" required inputmode="numeric"><br>
+        <input type="text" id="ingresos" name="ingresos" placeholder="0,00" inputmode="numeric"><br>
         <input type="submit" value="Calcular">
-        <button type="button" id="enviarMail">Enviar por Mail</button>
-        <button type="button" id="otraConsulta">Otra Consulta</button>
       </form>
       <div id="resultado"></div>
+      <!-- Botones fuera del form para que no interfieran con submit -->
+      <div id="calculatorActions" style="display:none;">
+        <button type="button" id="enviarMail">Enviar por Mail</button>
+        <button type="button" id="otraConsulta">Otra Consulta</button>
+      </div>
     </div>
-    
+
     <!-- Pantalla de Resultado Simple -->
-    <div id="simpleResultScreen" style="display: none;">
+    <div id="simpleResultScreen" style="display:none;">
       <div id="simpleResult"></div>
+      <button type="button" id="enviarMailSimple">Enviar por Mail</button>
+      <button type="button" id="otraConsultaSimple">Otra Consulta</button>
     </div>
   </div>
+
+  <!-- Modal de email (oculto, gestionado por JS) -->
+  <div id="emailModalOverlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="emailModalTitle">
+    <div id="emailModal">
+      <h3 id="emailModalTitle">Enviar resultado por mail</h3>
+      <label for="emailInput">Dirección de email:</label>
+      <input type="email" id="emailInput" placeholder="destinatario@ejemplo.com" autocomplete="email">
+      <p id="emailError" class="field-error" aria-live="polite"></p>
+      <div class="modal-actions">
+        <button id="emailModalCancel" type="button">Cancelar</button>
+        <button id="emailModalConfirm" type="button">Enviar</button>
+      </div>
+    </div>
+  </div>
+
   <script src="script.js"></script>
   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-E7FC7H0NK7"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-E7FC7H0NK7');
-</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E7FC7H0NK7"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-E7FC7H0NK7');
+  </script>
 </body>
 </html>
-
-

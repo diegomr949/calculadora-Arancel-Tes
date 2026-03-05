@@ -1,297 +1,392 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const initialForm = document.getElementById('initialForm');
-  const checkForm = document.getElementById('checkForm');
-  const arancelForm = document.getElementById('arancelForm');
-  const initialScreen = document.getElementById('initialScreen');
-  const checkScreen = document.getElementById('checkScreen');
-  const checkScreenDiscount = document.getElementById('checkScreenDiscount');
-  const prioridadScreen = document.getElementById('prioridadScreen');
-  const calculatorScreen = document.getElementById('calculatorScreen');
-  const simpleResultScreen = document.getElementById('simpleResultScreen');
-  const resultado = document.getElementById('resultado');
 
-  const tiposConCalculadora = [
-    "Estados Contables Soc. Comerciales",
-    "Estados Contables Entidades Sin F/ Lucros",
-    "Estados Contables De Cooperativa",
-    "Estados Contables Intermedios",
-    "Compilación",
-    "Estados Contables Especiales",
-    "Rectificativo"
-  ];
+  // ==========================================
+  // PANEL DE CONFIGURACIÓN CENTRALIZADO
+  // ==========================================
+  const CONFIG = {
+    aranceles: {
+      tramiteSimple: 50000,
+      escalas: [
+        { tope: 40000000,   normal: 85000,  prioritario: 170000 },
+        { tope: 160000000,  normal: 105000, prioritario: 210000 },
+        { tope: 650000000,  normal: 130000, prioritario: 260000 },
+        { tope: 2600000000, normal: 160000, prioritario: 320000 },
+        { tope: Infinity,   normal: 200000, prioritario: 400000 },
+      ],
+    },
+    tiposConCalculadora: [
+      "Estados Contables Soc. Comerciales",
+      "Estados Contables Entidades Sin F/ Lucros",
+      "Estados Contables De Cooperativa",
+      "Estados Contables Intermedios",
+      "Compilación",
+      "Estados Contables Especiales",
+      "Rectificativo",
+    ],
+    tiposConDescuento: [
+      "Estados Contables Entidades Sin F/ Lucros",
+      "Estados Contables De Cooperativa",
+    ],
+    mail: {
+      endpoint: 'https://script.google.com/macros/s/AKfycbw3AqYbVEEF5ByaCxRfrtPo_xafEVM7d0vGGlZ52unDtvbifwTAMHKa2XJNgz_u_jAr0w/exec',
+      subject: 'Resultado Calculadora de Arancel CPCE Mendoza',
+    },
+  };
 
-  let discountPercentage = 0; // Variable para el descuento
-  let tipoTramiteSeleccionado = ''; // Variable para guardar el tipo de trámite seleccionado
+  // ==========================================
+  // 1. ESTADO CENTRALIZADO
+  // ==========================================
+  const createInitialState = () => ({
+    tipoTramite: '',
+    esPrioritario: false,
+    porcentajeDescuento: 0,
+    valoresCalculados: { importeBase: 0, arancelFinal: 0 },
+    calculoRealizado: false,
+  });
 
-  initialForm.addEventListener('submit', function(event) {
-    event.preventDefault();
-    tipoTramiteSeleccionado = document.getElementById('tipoTramite').value;
+  let state = createInitialState();
 
-    if (tiposConCalculadora.includes(tipoTramiteSeleccionado)) {
-      initialScreen.style.display = 'none';
-      checkScreen.style.display = 'block'; // Muestra la pantalla de chequeo
-    } else {
-      initialScreen.style.display = 'none';
-      simpleResultScreen.style.display = 'block';
-      document.getElementById('simpleResult').innerHTML = `
-        <p><b>Trámite:</b> ${tipoTramiteSeleccionado}</p>
-        <p>El valor del trámite es $50.000</p>
-        <button type="button" id="enviarMailSimple">Enviar por Mail</button>
-        <button type="button" id="otraConsultaSimple">Otra Consulta</button>
-      `;
-      document.getElementById('enviarMailSimple').addEventListener('click', () => enviarMail(false));
-      document.getElementById('otraConsultaSimple').addEventListener('click', () => {
-        simpleResultScreen.style.display = 'none';
-        initialScreen.style.display = 'block';
-        document.getElementById('simpleResult').innerHTML = '';
+  // ==========================================
+  // 2. GESTOR DE VISTAS
+  // FIX: 'checkDiscount' ahora apunta a 'checkDiscountScreen' (renombrado en HTML)
+  // ==========================================
+  const screens = {
+    initial:        document.getElementById('initialScreen'),
+    check:          document.getElementById('checkScreen'),
+    checkDiscount:  document.getElementById('checkDiscountScreen'),
+    prioridad:      document.getElementById('prioridadScreen'),
+    calculator:     document.getElementById('calculatorScreen'),
+    simpleResult:   document.getElementById('simpleResultScreen'),
+  };
+
+  function navegarA(pantallaId) {
+    Object.values(screens).forEach(s => (s.style.display = 'none'));
+    if (screens[pantallaId]) screens[pantallaId].style.display = 'block';
+  }
+
+  // ==========================================
+  // 3. LÓGICA DE NEGOCIO (Funciones Puras)
+  // ==========================================
+  function calcularArancel(activo, pasivo, ingresos, esPrioritario, descuento) {
+    const importeBase = (activo + pasivo + ingresos) / 2;
+    const escala      = CONFIG.aranceles.escalas.find(e => importeBase <= e.tope);
+    const arancelBruto = esPrioritario ? escala.prioritario : escala.normal;
+    const arancelFinal = arancelBruto * (1 - descuento);
+    return { importeBase, arancelFinal };
+  }
+
+  // ==========================================
+  // 4. VALIDACIÓN
+  // FIX: Se agrega validación de campo vacío además de NaN/negativo
+  // ==========================================
+  function validarCamposNumericos(...valores) {
+    return valores.every(v => typeof v === 'number' && !isNaN(v) && v >= 0);
+  }
+
+  // FIX: Al menos uno debe ser > 0 para evitar calcular sobre tres ceros
+  function camposTienenDatos(activo, pasivo, ingresos) {
+    return activo > 0 || pasivo > 0 || ingresos > 0;
+  }
+
+  function validarEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  }
+
+  // ==========================================
+  // 5. SERVICIO DE MAIL
+  // ==========================================
+  async function enviarMail(body) {
+    const recipient = await pedirEmailModal();
+    if (!recipient) return;
+
+    mostrarLoadingMail(true);
+
+    try {
+      const res = await fetch(CONFIG.mail.endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          recipient,
+          subject: CONFIG.mail.subject,
+          body,
+        }).toString(),
       });
+
+      if (!res.ok) throw new Error(`Error del servidor: ${res.status} ${res.statusText}`);
+      mostrarNotificacion('Correo enviado exitosamente.', 'success');
+    } catch (error) {
+      console.error('[enviarMail]', error);
+      mostrarNotificacion(`No se pudo enviar el correo: ${error.message}`, 'error');
+    } finally {
+      mostrarLoadingMail(false);
     }
+  }
+
+  // ==========================================
+  // 6. UI HELPERS
+  // FIX: Modal ahora es un elemento estático del HTML (no se crea/destruye en cada uso)
+  //      Esto evita problemas con listeners huérfanos y es más performante
+  // ==========================================
+  const emailOverlay  = document.getElementById('emailModalOverlay');
+  const emailInput    = document.getElementById('emailInput');
+  const emailError    = document.getElementById('emailError');
+  const btnModalOk    = document.getElementById('emailModalConfirm');
+  const btnModalCancel = document.getElementById('emailModalCancel');
+
+  let resolveModal = null;
+
+  function pedirEmailModal() {
+    return new Promise((resolve) => {
+      resolveModal = resolve;
+      emailInput.value = '';
+      emailError.textContent = '';
+      emailOverlay.style.display = 'flex';
+      emailInput.focus();
+    });
+  }
+
+  function cerrarModal(valor) {
+    emailOverlay.style.display = 'none';
+    if (resolveModal) {
+      resolveModal(valor);
+      resolveModal = null;
+    }
+  }
+
+  btnModalOk.addEventListener('click', () => {
+    const val = emailInput.value.trim();
+    if (!validarEmail(val)) {
+      emailError.textContent = 'Ingresá un email válido.';
+      emailInput.focus();
+      return;
+    }
+    cerrarModal(val);
   });
 
-  checkForm.addEventListener('submit', function(event) {
-    event.preventDefault();
-    const prioridadCheck = document.getElementById('prioridadCheck').checked;
-  
-    // Obtén el tipo de trámite seleccionado
-    const tipoTramiteSeleccionado = document.getElementById('tipoTramite').value;
-  
-    if (prioridadCheck) {
-      checkScreen.style.display = 'none';
-      prioridadScreen.style.display = 'block';
+  btnModalCancel.addEventListener('click', () => cerrarModal(null));
+
+  emailInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter')  btnModalOk.click();
+    if (e.key === 'Escape') cerrarModal(null);
+  });
+
+  // Cerrar al hacer click fuera del modal
+  emailOverlay.addEventListener('click', (e) => {
+    if (e.target === emailOverlay) cerrarModal(null);
+  });
+
+  function mostrarLoadingMail(activo) {
+    let loader = document.getElementById('mailLoader');
+    if (activo) {
+      if (!loader) {
+        loader = document.createElement('div');
+        loader.id = 'mailLoader';
+        loader.textContent = 'Enviando correo…';
+        loader.setAttribute('aria-live', 'polite');
+        document.body.appendChild(loader);
+      }
     } else {
-      // Verifica si el tipo de trámite seleccionado es uno de los que tienen descuento
-      if (
-        tipoTramiteSeleccionado === "Estados Contables Entidades Sin F/ Lucros" || 
-        tipoTramiteSeleccionado === "Estados Contables De Cooperativa"
-      ) {
-        checkScreen.style.display = 'none';
-        checkScreenDiscount.style.display = 'block'; // Muestra la pantalla de descuentos
-      } else {
-        checkScreen.style.display = 'none';
-        calculatorScreen.style.display = 'block';
-      }
+      loader?.remove();
+    }
+  }
+
+  function mostrarNotificacion(mensaje, tipo = 'info') {
+    const notif = document.createElement('div');
+    notif.className = `notificacion notificacion--${tipo}`;
+    notif.textContent = mensaje;
+    notif.setAttribute('role', 'alert');
+    document.body.appendChild(notif);
+    setTimeout(() => notif.remove(), 4000);
+  }
+
+  // ==========================================
+  // 7. CONTROLADORES DE EVENTOS
+  // ==========================================
+  document.getElementById('initialForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    state.tipoTramite = document.getElementById('tipoTramite').value;
+
+    if (CONFIG.tiposConCalculadora.includes(state.tipoTramite)) {
+      navegarA('check');
+    } else {
+      renderizarResultadoSimple();
+      navegarA('simpleResult');
     }
   });
-  
 
-  checkScreenDiscount.addEventListener('submit', function(event) {
-    event.preventDefault();
+  document.getElementById('checkForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    state.esPrioritario = document.getElementById('prioridadCheck').checked;
 
-    // Obtener el descuento seleccionado
-    const discountOptions = document.getElementsByName('discountCheck');
-    discountPercentage = 0; // Reiniciar el descuento
-
-    for (const option of discountOptions) {
-      if (option.checked) {
-        discountPercentage = parseFloat(option.value) / 100; // Convertir a porcentaje
-        break;
-      }
+    if (state.esPrioritario) {
+      navegarA('prioridad');
+    } else if (CONFIG.tiposConDescuento.includes(state.tipoTramite)) {
+      navegarA('checkDiscount');
+    } else {
+      navegarA('calculator');
     }
-
-    // Ir a la calculadora
-    calculatorScreen.style.display = 'block'; 
   });
 
-  arancelForm.addEventListener('submit', function(event) {
-    event.preventDefault();
-    const activo = formatToNumber(document.getElementById('activo').value);
-    const pasivo = formatToNumber(document.getElementById('pasivo').value);
-    const ingresos = formatToNumber(document.getElementById('ingresos').value);
-
-    calcularArancel(activo, pasivo, ingresos);
-  });
-
-  document.getElementById('enviarMail').addEventListener('click', () => enviarMail(true));
-  document.getElementById('otraConsulta').addEventListener('click', () => {
-    arancelForm.reset();
-    calculatorScreen.style.display = 'none';
-    initialScreen.style.display = 'block';
-    resultado.innerHTML = '';
+  document.getElementById('discountForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const opcion = document.querySelector('input[name="discountCheck"]:checked');
+    state.porcentajeDescuento = opcion ? parseFloat(opcion.value) / 100 : 0;
+    navegarA('calculator');
   });
 
   document.getElementById('continuarConPrioridad').addEventListener('click', () => {
-    prioridadScreen.style.display = 'none';
-    calculatorScreen.style.display = 'block';
+    navegarA('calculator');
   });
 
+  document.getElementById('arancelForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const activo   = parsearInput('activo');
+    const pasivo   = parsearInput('pasivo');
+    const ingresos = parsearInput('ingresos');
+
+    // FIX: Validación robusta — tipos correctos + al menos un valor > 0
+    if (!validarCamposNumericos(activo, pasivo, ingresos)) {
+      mostrarNotificacion('Por favor ingresá valores numéricos válidos.', 'error');
+      return;
+    }
+    if (!camposTienenDatos(activo, pasivo, ingresos)) {
+      mostrarNotificacion('Ingresá al menos un importe mayor a cero.', 'error');
+      return;
+    }
+
+    state.valoresCalculados = calcularArancel(
+      activo, pasivo, ingresos,
+      state.esPrioritario,
+      state.porcentajeDescuento
+    );
+    state.calculoRealizado = true;
+
+    renderizarResultadoCalculadora();
+
+    // FIX: Mostrar botones de acción recién cuando hay resultado
+    document.getElementById('calculatorActions').style.display = 'block';
+  });
+
+  // FIX: Listeners directos sobre botones estáticos (no dentro del form)
+  document.getElementById('enviarMail').addEventListener('click', () => {
+    if (!state.calculoRealizado) {
+      mostrarNotificacion('Primero realizá el cálculo.', 'error');
+      return;
+    }
+    handleEnviarMailCalculadora();
+  });
+
+  document.getElementById('otraConsulta').addEventListener('click', reiniciarApp);
+  document.getElementById('enviarMailSimple').addEventListener('click', handleEnviarMailSimple);
+  document.getElementById('otraConsultaSimple').addEventListener('click', reiniciarApp);
+
+  // ==========================================
+  // 8. HANDLERS DE MAIL
+  // ==========================================
+  function handleEnviarMailCalculadora() {
+    const { importeBase, arancelFinal } = state.valoresCalculados;
+    const body = [
+      `Importe Base De Búsqueda: $${formatNumber(importeBase.toFixed(2))}`,
+      `Arancel a pagar: $${formatNumber(arancelFinal)}`,
+      '',
+      'El arancel incluye dos ejemplares. Para copias adicionales el 50% del arancel vigente.',
+      '',
+      'El arancel por escala corresponde para:',
+      ...CONFIG.tiposConCalculadora.map(t => `  - ${t}`),
+      '',
+      'Te esperamos en Mi Cuenta para gestionar el trámite.',
+      'https://micuenta.cpcemza.org.ar/',
+    ].join('\n');
+
+    enviarMail(body);
+  }
+
+  function handleEnviarMailSimple() {
+    const body = [
+      `Trámite: ${state.tipoTramite}`,
+      `El valor del trámite es $${formatNumber(CONFIG.aranceles.tramiteSimple)}`,
+    ].join('\n');
+
+    enviarMail(body);
+  }
+
+  // ==========================================
+  // 9. RENDERIZADO
+  // ==========================================
+  function renderizarResultadoSimple() {
+    document.getElementById('simpleResult').innerHTML = `
+      <p><b>Trámite:</b> ${state.tipoTramite}</p>
+      <p>El valor del trámite es $${formatNumber(CONFIG.aranceles.tramiteSimple)}</p>
+    `;
+  }
+
+  function renderizarResultadoCalculadora() {
+    const { importeBase, arancelFinal } = state.valoresCalculados;
+    const listaItems = CONFIG.tiposConCalculadora.map(t => `<li>${t}</li>`).join('');
+
+    document.getElementById('resultado').innerHTML = `
+      <p><b>Importe Base de Búsqueda:</b> $${formatNumber(importeBase.toFixed(2))}</p>
+      <p><b>Arancel a pagar:</b> $${formatNumber(arancelFinal)}</p>
+      <p>El arancel incluye dos ejemplares. Para copias adicionales el 50% del arancel vigente.</p>
+      <p style="text-align:left;">El arancel por escala corresponde para:</p>
+      <ul>${listaItems}</ul>
+      <p>Te esperamos en Mi Cuenta para gestionar el trámite.</p>
+      <p>
+        <a href="https://micuenta.cpcemza.org.ar/" target="_blank" rel="noopener noreferrer">
+          <button type="button">Ingresar a Mi Cuenta</button>
+        </a>
+      </p>
+    `;
+  }
+
+  // ==========================================
+  // 10. RESET
+  // ==========================================
+  function reiniciarApp() {
+    state = createInitialState();
+
+    ['arancelForm', 'checkForm', 'initialForm', 'discountForm'].forEach(id => {
+      document.getElementById(id)?.reset();
+    });
+
+    document.getElementById('resultado').innerHTML = '';
+    document.getElementById('simpleResult').innerHTML = '';
+    document.getElementById('calculatorActions').style.display = 'none';
+
+    navegarA('initial');
+  }
+
+  // ==========================================
+  // 11. UTILIDADES DE FORMATEO
+  // ==========================================
+  // FIX: parsearInput siempre devuelve Number
+  function parsearInput(id) {
+    const raw = document.getElementById(id)?.value ?? '';
+    return formatToNumber(raw);
+  }
+
+  // Formateo en tiempo real de los inputs
   document.querySelectorAll('input[type="text"]').forEach(input => {
-    input.addEventListener('input', function() {
-      let value = this.value;
-      value = value.replace(/[^0-9,]/g, '');
-      this.value = formatNumber(formatToNumber(value));
+    input.addEventListener('input', function () {
+      const num = formatToNumber(this.value);
+      this.value = isNaN(num) ? '' : formatNumber(num);
     });
   });
 
-  function calcularArancel(activo, pasivo, ingresos) {
-    const importeBaseBusqueda = (activo + pasivo + ingresos) / 2;
-    let arancel;
-
-    if (document.getElementById('prioridadCheck').checked) {
-      // Cálculo para trámites prioritarios
-      if (importeBaseBusqueda <= 40000000) {
-        arancel = 170000;
-      } else if (importeBaseBusqueda <= 160000000) {
-        arancel = 210000;
-      } else if (importeBaseBusqueda <= 650000000) {
-        arancel = 260000;
-      } else if (importeBaseBusqueda <= 2600000000) {
-        arancel = 320000;
-      } else {
-        arancel = 400000;
-      }
-    } else {
-      // Cálculo para trámites no prioritarios
-      if (importeBaseBusqueda <= 40000000) {
-        arancel = 85000;
-      } else if (importeBaseBusqueda <= 160000000) {
-        arancel = 105000;
-      } else if (importeBaseBusqueda <= 650000000) {
-        arancel = 130000;
-      } else if (importeBaseBusqueda <= 2600000000) {
-        arancel = 160000;
-      } else {
-        arancel = 200000;
-      }
-    }
-
-    // Aplicar el descuento si corresponde
-    const descuento = arancel * discountPercentage;
-    const arancelFinal = arancel - descuento;
-
-    const formattedImporteBase = formatNumber(parseFloat(importeBaseBusqueda).toFixed(2));
-
-    const formattedArancel = formatNumber(arancelFinal);
-
-    resultado.innerHTML = `
-      <p><b>Importe Base de Búsqueda:</b> $${formattedImporteBase}</p>
-      <p><b>Arancel a pagar:</b> $${formattedArancel}</p>
-      <p>El arancel incluye dos ejemplares. Para copias adicionales el 50% del arancel vigente.</p>
-      <p style="text-align: left;">El arancel por escala solo corresponde para los siguientes trámites:</p>
-      <ul>
-        <li>Estados contables soc. comerciales</li>
-        <li>Estados contables entidades sin f/ lucros</li>
-        <li>Estados contables de cooperativa</li>
-        <li>Estados contables intermedios</li>
-        <li>Compilación</li>
-        <li>Estados contables especiales</li>
-        <li>Rectificativos</li>
-      </ul>
-      <p>Te esperamos en Mi Cuenta para gestionar el trámite.</p>
-      <p><a href="https://micuenta.cpcemza.org.ar/" target="_blank"><button>Ingresar a Mi Cuenta</button></a></p>`;
-  }
-
-  function enviarMail(isCalculator) {
-    const tipoTramite = document.getElementById('tipoTramite').value;
-    let body;
-
-    if (isCalculator) {
-        const activo = formatToNumber(document.getElementById('activo').value);
-        const pasivo = formatToNumber(document.getElementById('pasivo').value);
-        const ingresos = formatToNumber(document.getElementById('ingresos').value);
-        const importeBaseBusqueda = (activo + pasivo + ingresos) / 2;
-        let arancel;
-
-        if (document.getElementById('prioridadCheck').checked) {
-            // Cálculo para trámites prioritarios
-            if (importeBaseBusqueda <= 40000000) {
-              arancel = 170000;
-            } else if (importeBaseBusqueda <= 160000000) {
-              arancel = 210000;
-            } else if (importeBaseBusqueda <= 650000000) {
-              arancel = 260000;
-            } else if (importeBaseBusqueda <= 2600000000) {
-              arancel = 320000;
-            } else {
-              arancel = 400000;
-            }
-        } else {
-            // Cálculo para trámites no prioritarios
-            if (importeBaseBusqueda <= 40000000) {
-              arancel = 85000;
-            } else if (importeBaseBusqueda <= 160000000) {
-              arancel = 105000;
-            } else if (importeBaseBusqueda <= 650000000) {
-              arancel = 130000;
-            } else if (importeBaseBusqueda <= 2600000000) {
-              arancel = 160000;
-            } else {
-              arancel = 200000;
-            }
-        }
-
-        // Aplicar descuento si corresponde
-        const descuento = arancel * discountPercentage;
-        const arancelFinal = arancel - descuento;
-
-      const formattedImporteBase = formatNumber(importeBaseBusqueda);
-      const formattedArancel = formatNumber(arancelFinal);
-
-      body = `Importe Base De Búsqueda: $${formattedImporteBase}\nArancel a pagar: $${formattedArancel}\n
-      El arancel incluye dos ejemplares. Para copias adicionales el 50% del arancel vigente.\n
-      El arancel por escala solo corresponde para los siguientes trámites:\n
-      Estados Contables Soc. Comerciales\n
-      Estados Contables Entidades Sin F/ Lucros\n
-      Estados Contables De Cooperativa\n
-      Estados Contables Intermedios\n
-      Compilación\n
-      Estados Contables Especiales\n
-      Rectificativos\n
-      Te Esperamos En Mi Cuenta Para Gestionar El Trámite`;
-    } else {
-      body = `Trámite: ${tipoTramite}\nEl valor del trámite es $50.000`;
-    }
-
-    const recipient = prompt("Introduce el email del destinatario:", "destinatario@example.com");
-
-    if (recipient) {
-      const url = 'https://script.google.com/macros/s/AKfycbw3AqYbVEEF5ByaCxRfrtPo_xafEVM7d0vGGlZ52unDtvbifwTAMHKa2XJNgz_u_jAr0w/exec';
-
-      const payload = {
-        'recipient': recipient,
-        'subject': 'Resultado Calculadora de Arancel CPCE Mendoza',
-        'body': body
-      };
-
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams(payload).toString()
-      })
-      .then(response => response.text())
-      .then(result => {
-        alert('Correo enviado exitosamente');
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Error al enviar el correo');
-      });
-    }
+  // FIX: Siempre retorna Number, nunca string con coma al final
+  function formatToNumber(value) {
+    if (!value) return 0;
+    const cleaned = value.toString().replace(/\./g, '').replace(/,/g, '.');
+    const result  = parseFloat(cleaned);
+    return isNaN(result) ? 0 : result;
   }
 
   function formatNumber(number) {
-    var parts = number.toString().split('.');
-    
-    // Manejo de la parte entera con punto como separador de miles
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    
-    // Manejo de la parte decimal
-    if (parts[1]) {
-        return parts[0] + ',' + parts[1]; // Usar coma para los decimales
-    }
-    return parts[0];
-}
+    const num   = Number(number);
+    const parts = num.toFixed(2).split('.');
+    parts[0]    = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return parts[1] === '00' ? parts[0] : `${parts[0]},${parts[1]}`;
+  }
 
-function formatToNumber(value) {
-    // Eliminar el punto de los miles y reemplazar la coma por un punto
-    let result = parseFloat(value.replace(/\./g, '').replace(/,/g, '.') || 0);
-    if (value.endsWith(",")) {
-      return result.toFixed() + ',';
-    }
-    return result
-}
 });
-
-
-
