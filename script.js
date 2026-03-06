@@ -7,11 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
     aranceles: {
       tramiteSimple: 50000,
       escalas: [
-        { tope: 40000000,   normal: 85000,  prioritario: 170000 },
-        { tope: 160000000,  normal: 105000, prioritario: 210000 },
-        { tope: 650000000,  normal: 130000, prioritario: 260000 },
-        { tope: 2600000000, normal: 160000, prioritario: 320000 },
-        { tope: Infinity,   normal: 200000, prioritario: 400000 },
+        { tope: 55000000,   normal: 110000,  prioritario: 220000 },
+        { tope: 215000000,  normal: 137000, prioritario: 274000 },
+        { tope: 830000000,  normal: 172000, prioritario: 344000 },
+        { tope: 3300000000, normal: 218000, prioritario: 436000 },
+        { tope: Infinity,   normal: 280000, prioritario: 560000 },
       ],
     },
     tiposConCalculadora: [
