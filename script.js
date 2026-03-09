@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   const CONFIG = {
     aranceles: {
-      tramiteSimple: 50000,
+      tramiteSimple: 65000,
       escalas: [
         { tope: 55000000,   normal: 110000,  prioritario: 220000 },
         { tope: 215000000,  normal: 137000, prioritario: 274000 },
