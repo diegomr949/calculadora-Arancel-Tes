@@ -2,7 +2,7 @@
    CPCE MENDOZA — Simulador de Aranceles
    Design System: Institucional · Moderno · Confiable
    Paleta: Azul CPCE #1a5fa8 / Azul claro #337ab7 / Blanco
-   Tipografía: Libre Baskerville (display) + Source Sans 3 (body)
+   Tipografía: Poppins (display + body)
    ============================================================ */
 
 /* ── Reset & Variables ── */
@@ -43,8 +43,8 @@
   --shadow-lg:    0 12px 40px rgba(13,61,110,0.18), 0 2px 8px rgba(13,61,110,0.08);
   --shadow-card:  0 2px 4px rgba(13,61,110,0.06), 0 8px 32px rgba(13,61,110,0.14);
 
-  --font-display: 'Libre Baskerville', Georgia, serif;
-  --font-body:    'Source Sans 3', system-ui, sans-serif;
+  --font-display: 'Poppins', Arial, sans-serif;
+  --font-body:    'Poppins', Arial, sans-serif;
 
   --transition:   0.18s ease;
 }
@@ -261,7 +261,7 @@ body {
   font-weight: 700;
   color: var(--text-dark);
   line-height: 1.25;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   margin-bottom: 8px;
 }
 
@@ -731,7 +731,7 @@ body {
   font-size: 36px;
   font-weight: 700;
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   display: block;
   margin-bottom: 4px;
 }
@@ -860,7 +860,7 @@ body {
   font-size: 42px;
   font-weight: 700;
   color: var(--blue-main);
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1;
 }
 
@@ -954,7 +954,7 @@ body {
   font-weight: 700;
   color: var(--text-dark);
   margin-bottom: 3px;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
 }
 
 .modal-subtitle {
